@@ -1,4 +1,4 @@
-package vn.vinaacademy.chat.config;
+package vn.vinaacademy.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

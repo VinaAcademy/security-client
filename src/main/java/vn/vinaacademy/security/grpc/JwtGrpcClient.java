@@ -1,4 +1,4 @@
-package vn.vinaacademy.chat.grpc;
+package vn.vinaacademy.security.grpc;
 
 import com.vinaacademy.grpc.JwtServiceGrpc.JwtServiceBlockingStub;
 import com.vinaacademy.grpc.TokenRequest;

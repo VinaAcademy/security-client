@@ -1,4 +1,4 @@
-package vn.vinaacademy.chat.config;
+package vn.vinaacademy.security.config;
 
 import io.grpc.CallCredentials;
 import io.grpc.CallOptions;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class OAuth2GrpcClientInterceptor implements ClientInterceptor {
-  private static final String TOKEN_KEY = "chat-service-key";
+  private static final String TOKEN_KEY = "security-client-key";
   private static final String TOKEN_PRINCIPAL = "internal-service";
   private static final String TOKEN_ROLE = "ROLE_INTERNAL_SERVICE";
 

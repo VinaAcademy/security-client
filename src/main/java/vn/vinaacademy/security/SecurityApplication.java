@@ -1,18 +1,18 @@
-package vn.vinaacademy.chat;
+package vn.vinaacademy.security;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import vn.vinaacademy.chat.grpc.JwtGrpcClient;
+import vn.vinaacademy.security.grpc.JwtGrpcClient;
 
 @Slf4j
 @SpringBootApplication
-public class ChatServiceApplication {
+public class SecurityApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(ChatServiceApplication.class, args);
+    SpringApplication.run(SecurityApplication.class, args);
   }
 
   @Bean

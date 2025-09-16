@@ -1,4 +1,4 @@
-package vn.vinaacademy.chat.config;
+package vn.vinaacademy.security.config;
 
 import com.vinaacademy.grpc.JwtServiceGrpc;
 import com.vinaacademy.grpc.JwtServiceGrpc.JwtServiceBlockingStub;

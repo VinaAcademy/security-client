@@ -10,10 +10,10 @@
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>vn.vinaacademy</groupId>
-  <artifactId>chat-service</artifactId>
+  <artifactId>security-client</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>chat-service</name>
-  <description>chat-service</description>
+  <name>security-client</name>
+  <description>security-client</description>
   <url/>
   <licenses>
     <license/>
@@ -40,10 +40,6 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-client</artifactId>
     </dependency>
     <dependency>
@@ -65,12 +61,6 @@
     <dependency>
       <groupId>org.springframework.grpc</groupId>
       <artifactId>spring-grpc-client-spring-boot-starter</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
