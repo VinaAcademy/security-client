@@ -2,6 +2,8 @@ package vn.vinaacademy.security.config;
 
 import com.vinaacademy.grpc.JwtServiceGrpc;
 import com.vinaacademy.grpc.JwtServiceGrpc.JwtServiceBlockingStub;
+import com.vinaacademy.grpc.UserServiceGrpc;
+import com.vinaacademy.grpc.UserServiceGrpc.UserServiceBlockingStub;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +23,11 @@ public class GrpcClientConfig {
   @Bean
   JwtServiceBlockingStub stub() {
     return JwtServiceGrpc.newBlockingStub(authServerChannel());
+  }
+
+  @Bean
+  UserServiceBlockingStub userServiceStub() {
+    return UserServiceGrpc.newBlockingStub(authServerChannel());
   }
 
   @Bean(destroyMethod = "shutdown")

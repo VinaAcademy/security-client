@@ -1,4 +1,4 @@
-package vn.vinaacademy.security.config;
+package vn.vinaacademy.security.autoconfigure;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +13,7 @@ import vn.vinaacademy.security.aspect.SecurityAspect;
 import vn.vinaacademy.security.evaluator.SecurityExpressionEvaluator;
 import vn.vinaacademy.security.filter.JwtAuthenticationFilter;
 import vn.vinaacademy.security.grpc.JwtGrpcClient;
+import vn.vinaacademy.security.grpc.UserGrpcClient;
 import vn.vinaacademy.security.properties.SecurityClientProperties;
 
 /**
@@ -23,7 +24,7 @@ import vn.vinaacademy.security.properties.SecurityClientProperties;
 @AutoConfiguration
 @EnableAspectJAutoProxy
 @ComponentScan(basePackages = "vn.vinaacademy.security")
-@ConditionalOnClass({JwtGrpcClient.class})
+@ConditionalOnClass({JwtGrpcClient.class, UserGrpcClient.class})
 @EnableConfigurationProperties(SecurityClientProperties.class)
 @RequiredArgsConstructor
 public class SecurityClientAutoConfiguration {
