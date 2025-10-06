@@ -6,19 +6,20 @@ Thư viện Spring Boot gRPC client để xác thực JWT token trong hệ thố
 
 - **JWT Token Validation**: Xác thực JWT tokens thông qua gRPC calls
 - **OAuth2 Authentication**: Tự động thêm OAuth2 Bearer tokens vào tất cả gRPC calls  
+- **Eureka Service Discovery**: Tự động resolve địa chỉ gRPC và OAuth2 server từ Eureka (optional)
 - **Security Annotations**: Hỗ trợ các annotation như `@PreAuthorize`, `@HasAnyRole`
 - **Auto Configuration**: Tự động cấu hình khi được thêm vào Spring Boot application
 - **JWT Authentication Filter**: Tự động extract và validate JWT từ Authorization header
 
 ## Cài đặt
 
-### 1. Build và install thư viện
+### Cách 1: Build và install từ source
 
 ```bash
 mvn -U clean install
 ```
 
-### 2. Thêm dependency vào project
+Sau đó thêm dependency vào project:
 
 ```xml
 <dependency>
@@ -28,9 +29,46 @@ mvn -U clean install
 </dependency>
 ```
 
+### Cách 2: Sử dụng JitPack
+
+#### Bước 1: Thêm JitPack repository vào `pom.xml`
+
+```xml
+<repositories>
+  <repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </repository>
+</repositories>
+```
+
+#### Bước 2: Thêm dependency
+
+```xml
+<dependency>
+  <groupId>com.github.VinaAcademy</groupId>
+  <artifactId>security-client-library</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+**Lưu ý**: Thay `1.0.0` bằng tag version mà bạn muốn sử dụng. Để xem các version có sẵn, truy cập: https://jitpack.io/#VinaAcademy/security-client-library
+
+#### Publish version mới lên JitPack
+
+Để publish version mới:
+
+```bash
+# Tạo và push tag mới
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+JitPack sẽ tự động build project khi có tag mới. Bạn có thể kiểm tra build status tại: https://jitpack.io/#VinaAcademy/security-client-library
+
 ## Cấu hình
 
-### 1. Cấu hình trong application.yml/application.properties
+### 1. Cấu hình cơ bản (không dùng Eureka)
 
 ```yaml
 security:
@@ -48,7 +86,43 @@ security:
     keep-alive-timeout: ${SECURITY_JWT_KEEP_ALIVE_TIMEOUT:5}
 ```
 
-### 2. Biến môi trường
+### 2. Cấu hình với Eureka Service Discovery
+
+Khi sử dụng Eureka, thư viện sẽ tự động resolve địa chỉ của gRPC server và OAuth2 server từ Eureka:
+
+```yaml
+security:
+  # Eureka configuration
+  eureka:
+    enabled: true
+    service-name: platform-server  # Tên service trong Eureka
+    grpc-port: 9090                # Port gRPC trên service
+
+  oauth2:
+    provider:
+      service-name: platform-server  # Tên service OAuth2 trong Eureka
+      token-uri: http://localhost:8080/oauth2/token  # Fallback nếu Eureka fail
+    grpc-client:
+      scopes: api.read, api.write
+      client-id: ${SECURITY_OAUTH2_GRPC_CLIENT_ID:grpc-client}
+      client-secret: ${SECURITY_OAUTH2_GRPC_CLIENT_SECRET:grpc-secret}
+
+  grpc:
+    grpc-address: localhost:9090  # Fallback nếu Eureka fail
+    enable-keep-alive: true
+    keep-alive-time: 30
+    keep-alive-timeout: 5
+
+# Eureka Client configuration (nếu sử dụng Eureka)
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+```
+
+### 3. Biến môi trường
 
 Bạn có thể cấu hình thông qua các biến môi trường sau:
 
@@ -65,7 +139,26 @@ SECURITY_JWT_GRPC_ADDRESS=your-platform-server:9090
 SECURITY_JWT_ENABLE_KEEP_ALIVE=true
 SECURITY_JWT_KEEP_ALIVE_TIME=30
 SECURITY_JWT_KEEP_ALIVE_TIMEOUT=5
+
+# Eureka Configuration (Optional)
+SECURITY_EUREKA_ENABLED=true
+SECURITY_EUREKA_SERVICE_NAME=platform-server
+SECURITY_EUREKA_GRPC_PORT=9090
+EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
 ```
+
+### 4. Thêm Eureka Client dependency (nếu sử dụng Eureka)
+
+Nếu bạn muốn sử dụng Eureka service discovery, thêm dependency sau vào project của bạn:
+
+```xml
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+</dependency>
+```
+
+**Lưu ý**: `security-client-library` đã đánh dấu Eureka Client là `optional`, vì vậy bạn chỉ cần thêm dependency này khi muốn sử dụng Eureka. Nếu không thêm, thư viện sẽ hoạt động bình thường với địa chỉ được cấu hình trực tiếp.
 
 ## Sử dụng
 

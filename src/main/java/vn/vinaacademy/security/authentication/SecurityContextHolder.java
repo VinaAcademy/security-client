@@ -1,5 +1,6 @@
 package vn.vinaacademy.security.authentication;
 
+import java.util.UUID;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,6 +44,13 @@ public class SecurityContextHolder {
   public static String getCurrentUserId() {
     UserContext context = getContext();
     return context != null ? context.getUserId() : null;
+  }
+
+  public static UUID getCurrentUserIdAsUUID() {
+    UserContext context = getContext();
+    return (context != null && context.getUserId() != null)
+        ? UUID.fromString(context.getUserId())
+        : null;
   }
 
   /** Get current user email */
