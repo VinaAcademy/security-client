@@ -1,7 +1,7 @@
 package vn.vinaacademy.security.discovery;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -47,50 +47,90 @@ public class EurekaServiceDiscovery {
     }
   }
 
+
   /**
-   * Resolves the service address from Eureka by service name.
+   * Resolves the service host from Eureka.
    *
    * @param serviceName the service name to resolve
    * @param fallbackAddress fallback address if Eureka resolution fails
-   * @return resolved address or fallback
+   * @return resolved host or fallback
    */
   public String resolveServiceAddress(String serviceName, String fallbackAddress) {
-    if (!properties.getEureka().isEnabled() || discoveryClient == null) {
-      log.debug(
-          "Eureka discovery disabled or unavailable, using fallback address: {}", fallbackAddress);
+    Object instance = findServiceInstance(serviceName);
+    if (instance == null) {
       return fallbackAddress;
     }
 
     try {
-      // Use reflection to call discoveryClient.getInstances(serviceName)
-      Method getInstancesMethod =
-          discoveryClient.getClass().getMethod("getInstances", String.class);
-      java.util.List<?> instances =
-          (java.util.List<?>) getInstancesMethod.invoke(discoveryClient, serviceName);
-
-      if (instances == null || instances.isEmpty()) {
-        log.warn(
-            "No instances found for service '{}' in Eureka, using fallback: {}",
-            serviceName,
-            fallbackAddress);
-        return fallbackAddress;
-      }
-
-      // Get the first instance
-      Object serviceInstance = instances.get(0);
-      Method getHostMethod = serviceInstance.getClass().getMethod("getHost");
-      String host = (String) getHostMethod.invoke(serviceInstance);
-
+      Method getHostMethod = instance.getClass().getMethod("getHost");
+      String host = (String) getHostMethod.invoke(instance);
       log.info("Resolved service '{}' to host: {}", serviceName, host);
       return host;
-
-    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-      log.error(
-          "Failed to resolve service '{}' from Eureka: {}, using fallback: {}",
-          serviceName,
-          e.getMessage(),
-          fallbackAddress);
+    } catch (Exception e) {
+      log.error("Error resolving host for service '{}': {}, using fallback: {}",
+          serviceName, e.getMessage(), fallbackAddress);
       return fallbackAddress;
+    }
+  }
+
+  /**
+   * Resolves the service host:port from Eureka.
+   *
+   * @param serviceName the service name to resolve
+   * @param fallbackAddress fallback address if Eureka resolution fails
+   * @return resolved host:port or fallback
+   */
+  public String resolveServiceHostPort(String serviceName, String fallbackAddress) {
+    Object instance = findServiceInstance(serviceName);
+    if (instance == null) {
+      return fallbackAddress;
+    }
+
+    try {
+      Method getHostMethod = instance.getClass().getMethod("getHost");
+      String host = (String) getHostMethod.invoke(instance);
+
+      int port;
+      if (properties.getEureka().isUseSecurePort()) {
+        Method getSecurePort = instance.getClass().getMethod("getSecurePort");
+        port = (int) getSecurePort.invoke(instance);
+      } else {
+        Method getPort = instance.getClass().getMethod("getPort");
+        port = (int) getPort.invoke(instance);
+      }
+
+      String hostPort = host + ":" + port;
+      log.info("Resolved service '{}' to host: {}", serviceName, hostPort);
+      return hostPort;
+    } catch (Exception e) {
+      log.error("Error resolving host/port for service '{}': {}, using fallback: {}",
+          serviceName, e.getMessage(), fallbackAddress);
+      return fallbackAddress;
+    }
+  }
+
+  /**
+   * Common method to find a service instance from Eureka using reflection.
+   */
+  private Object findServiceInstance(String serviceName) {
+    if (!properties.getEureka().isEnabled() || discoveryClient == null) {
+      log.debug("Eureka discovery disabled or unavailable for '{}'", serviceName);
+      return null;
+    }
+
+    try {
+      Method getInstances = discoveryClient.getClass().getMethod("getInstances", String.class);
+      List<?> instances = (List<?>) getInstances.invoke(discoveryClient, serviceName);
+
+      if (instances == null || instances.isEmpty()) {
+        log.warn("No instances found for service '{}'", serviceName);
+        return null;
+      }
+
+      return instances.get(0);
+    } catch (Exception e) {
+      log.error("Failed to get instances for service '{}': {}", serviceName, e.getMessage());
+      return null;
     }
   }
 
@@ -100,8 +140,8 @@ public class EurekaServiceDiscovery {
    * @return resolved gRPC address or fallback from properties
    */
   public String resolveGrpcAddress() {
-    String serviceName = properties.getEureka().getServiceName();
-    int grpcPort = properties.getEureka().getGrpcPort();
+    String serviceName = properties.getGrpc().getServiceName();
+    int grpcPort = properties.getGrpc().getGrpcPort();
     String fallbackAddress = properties.getGrpc().getGrpcAddress();
 
     String host;
@@ -125,7 +165,7 @@ public class EurekaServiceDiscovery {
     // Extract host from fallback URI
     String fallbackHost = extractHostFromUri(fallbackUri);
 
-    String host = resolveServiceAddress(serviceName, fallbackHost);
+    String host = resolveServiceHostPort(serviceName, fallbackHost);
 
     // Reconstruct the token URI with resolved host
     return fallbackUri.replace(fallbackHost, host);
