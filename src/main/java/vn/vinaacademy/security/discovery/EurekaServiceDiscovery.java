@@ -47,7 +47,6 @@ public class EurekaServiceDiscovery {
     }
   }
 
-
   /**
    * Resolves the service host from Eureka.
    *
@@ -67,8 +66,11 @@ public class EurekaServiceDiscovery {
       log.info("Resolved service '{}' to host: {}", serviceName, host);
       return host;
     } catch (Exception e) {
-      log.error("Error resolving host for service '{}': {}, using fallback: {}",
-          serviceName, e.getMessage(), fallbackAddress);
+      log.error(
+          "Error resolving host for service '{}': {}, using fallback: {}",
+          serviceName,
+          e.getMessage(),
+          fallbackAddress);
       return fallbackAddress;
     }
   }
@@ -103,15 +105,16 @@ public class EurekaServiceDiscovery {
       log.info("Resolved service '{}' to host: {}", serviceName, hostPort);
       return hostPort;
     } catch (Exception e) {
-      log.error("Error resolving host/port for service '{}': {}, using fallback: {}",
-          serviceName, e.getMessage(), fallbackAddress);
+      log.error(
+          "Error resolving host/port for service '{}': {}, using fallback: {}",
+          serviceName,
+          e.getMessage(),
+          fallbackAddress);
       return fallbackAddress;
     }
   }
 
-  /**
-   * Common method to find a service instance from Eureka using reflection.
-   */
+  /** Common method to find a service instance from Eureka using reflection. */
   private Object findServiceInstance(String serviceName) {
     if (!properties.getEureka().isEnabled() || discoveryClient == null) {
       log.debug("Eureka discovery disabled or unavailable for '{}'", serviceName);
