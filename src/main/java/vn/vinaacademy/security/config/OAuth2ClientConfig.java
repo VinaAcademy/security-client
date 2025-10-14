@@ -1,6 +1,7 @@
 package vn.vinaacademy.security.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
@@ -14,12 +15,16 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.web.reactive.function.client.WebClient;
+import vn.vinaacademy.security.discovery.EurekaServiceDiscovery;
 import vn.vinaacademy.security.properties.SecurityClientProperties;
 
 @Configuration
 @RequiredArgsConstructor
 public class OAuth2ClientConfig {
   private final SecurityClientProperties securityClientProperties;
+
+  @Autowired(required = false)
+  private EurekaServiceDiscovery eurekaServiceDiscovery;
 
   public static final String CLIENT_REGISTRATION_ID = "grpc-client";
 
@@ -44,9 +49,17 @@ public class OAuth2ClientConfig {
   @Bean
   ClientRegistrationRepository clientRegistrationRepository() {
     var grpcClient = securityClientProperties.getOauth2().getGrpcClient();
+
+    // Resolve token URI - use Eureka if enabled, otherwise use configured value
+    String tokenUri = securityClientProperties.getOauth2().getProvider().getTokenUri();
+    if (eurekaServiceDiscovery != null
+        && securityClientProperties.getEureka().isEnabled()) {
+      tokenUri = eurekaServiceDiscovery.resolveOAuth2TokenUri();
+    }
+
     ClientRegistration registration =
         ClientRegistration.withRegistrationId(CLIENT_REGISTRATION_ID)
-            .tokenUri(securityClientProperties.getOauth2().getProvider().getTokenUri())
+            .tokenUri(tokenUri)
             .clientId(grpcClient.getClientId())
             .clientSecret(grpcClient.getClientSecret())
             .scope(grpcClient.getScopes())

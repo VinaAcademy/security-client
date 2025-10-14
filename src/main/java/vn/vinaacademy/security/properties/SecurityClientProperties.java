@@ -17,8 +17,17 @@ public class SecurityClientProperties {
   /** OAuth2 client settings for gRPC authentication */
   private OAuth2 oauth2 = new OAuth2();
 
+  /** Eureka service discovery settings */
+  private Eureka eureka = new Eureka();
+
   @Data
   public static class Grpc {
+    /** Service name for gRPC server in Eureka */
+    private String serviceName = "vinaacademy-platform";
+
+    /** gRPC port on the discovered service */
+    private int grpcPort = 9090;
+
     /** gRPC server address for JWT validation */
     private String grpcAddress = "localhost:9090";
 
@@ -56,6 +65,17 @@ public class SecurityClientProperties {
   @Data
   public static class Provider {
     /** OAuth2 token URI */
-    private String tokenUri = "http://localhost:8080/oauth2/token";
+    private String tokenUri = "http://vinaacademy-platform/oauth2/token";
+
+    /** Service name in Eureka for OAuth2 server (if using Eureka) */
+    private String serviceName = "vinaacademy-platform";
+  }
+
+  @Data
+  public static class Eureka {
+    /** Enable Eureka service discovery */
+    private boolean enabled = false;
+
+    private boolean isUseSecurePort = false;
   }
 }
