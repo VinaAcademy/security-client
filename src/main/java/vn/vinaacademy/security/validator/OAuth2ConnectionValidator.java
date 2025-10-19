@@ -1,6 +1,6 @@
 package vn.vinaacademy.security.validator;
 
-import static vn.vinaacademy.security.config.OAuth2ClientConfig.CLIENT_REGISTRATION_ID;
+import static vn.vinaacademy.security.config.oauth2.OAuth2ClientConfig.CLIENT_REGISTRATION_ID;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

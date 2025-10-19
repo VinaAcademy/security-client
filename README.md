@@ -28,7 +28,7 @@ Sau đó thêm dependency vào project:
 <dependency>
   <groupId>vn.vinaacademy</groupId>
   <artifactId>security-client</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
@@ -53,11 +53,11 @@ Sau đó thêm dependency vào project:
 <dependency>
   <groupId>com.github.VinaAcademy</groupId>
   <artifactId>security-client</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
-**Lưu ý**: Thay `1.0.1` bằng tag version mà bạn muốn sử dụng. Để xem các version có sẵn, truy
+**Lưu ý**: Thay `1.0.2` bằng tag version mà bạn muốn sử dụng. Để xem các version có sẵn, truy
 cập: https://jitpack.io/#VinaAcademy/security-client-library
 
 #### Publish version mới lên JitPack
@@ -66,8 +66,8 @@ cập: https://jitpack.io/#VinaAcademy/security-client-library
 
 ```bash
 # Tạo và push tag mới
-git tag v1.0.1
-git push origin v1.0.1
+git tag v1.0.2
+git push origin v1.0.2
 ```
 
 JitPack sẽ tự động build project khi có tag mới. Bạn có thể kiểm tra build status

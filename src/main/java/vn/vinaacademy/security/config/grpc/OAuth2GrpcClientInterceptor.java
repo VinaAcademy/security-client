@@ -1,4 +1,4 @@
-package vn.vinaacademy.security.config;
+package vn.vinaacademy.security.config.grpc;
 
 import io.grpc.CallCredentials;
 import io.grpc.CallOptions;
@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Component;
+import vn.vinaacademy.security.config.oauth2.OAuth2ClientConfig;
 
 @Slf4j
 @Component
