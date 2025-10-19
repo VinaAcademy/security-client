@@ -4,18 +4,21 @@ import com.vinaacademy.grpc.GetUserByIdRequest;
 import com.vinaacademy.grpc.GetUserByIdResponse;
 import com.vinaacademy.grpc.GetUserByIdsRequest;
 import com.vinaacademy.grpc.GetUserByIdsResponse;
+import com.vinaacademy.grpc.UserServiceGrpc;
 import com.vinaacademy.grpc.UserServiceGrpc.UserServiceBlockingStub;
+import io.grpc.ManagedChannel;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import vn.vinaacademy.security.config.grpc.GrpcChannelFactory;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserGrpcClient {
-  private final UserServiceBlockingStub userServiceStub;
+  private final GrpcChannelFactory channelFactory;
 
   /**
    * Get user information by user ID via gRPC call to platform server
@@ -24,7 +27,11 @@ public class UserGrpcClient {
    * @return GetUserByIdResponse containing user information or error response
    */
   public GetUserByIdResponse getUserById(String userId) {
+    ManagedChannel channel;
     try {
+      channel = channelFactory.createAuthChannel();
+      UserServiceBlockingStub userServiceStub = UserServiceGrpc.newBlockingStub(channel);
+
       GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setUserId(userId).build();
 
       log.debug("Fetching user info for userId: {}", userId);
@@ -61,9 +68,12 @@ public class UserGrpcClient {
    * @return GetUserByIdsResponse containing users information or error response
    */
   public GetUserByIdsResponse getUserByIds(List<String> userIds) {
+    ManagedChannel channel;
     try {
-      GetUserByIdsRequest request = GetUserByIdsRequest.newBuilder().addAllUserIds(userIds).build();
+      channel = channelFactory.createAuthChannel();
+      UserServiceBlockingStub userServiceStub = UserServiceGrpc.newBlockingStub(channel);
 
+      GetUserByIdsRequest request = GetUserByIdsRequest.newBuilder().addAllUserIds(userIds).build();
       log.debug("Fetching user info for userIds: {}", userIds);
       GetUserByIdsResponse response = userServiceStub.getUserByIds(request);
 

@@ -1,19 +1,17 @@
-package vn.vinaacademy.security.config;
+package vn.vinaacademy.security.config.oauth2;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.web.reactive.function.client.WebClient;
 import vn.vinaacademy.security.discovery.EurekaServiceDiscovery;
 import vn.vinaacademy.security.properties.SecurityClientProperties;
@@ -21,21 +19,17 @@ import vn.vinaacademy.security.properties.SecurityClientProperties;
 @Configuration
 @RequiredArgsConstructor
 public class OAuth2ClientConfig {
-  private final SecurityClientProperties securityClientProperties;
+  @Getter private final SecurityClientProperties securityClientProperties;
 
+  @Setter
+  @Getter
   @Autowired(required = false)
   private EurekaServiceDiscovery eurekaServiceDiscovery;
 
   public static final String CLIENT_REGISTRATION_ID = "grpc-client";
 
   @Bean
-  OAuth2AuthorizedClientService authorizedClientService(
-      ClientRegistrationRepository registrations) {
-    return new InMemoryOAuth2AuthorizedClientService(registrations);
-  }
-
-  @Bean
-  OAuth2AuthorizedClientManager authorizedClientManager(
+  public OAuth2AuthorizedClientManager authorizedClientManager(
       ClientRegistrationRepository clients, OAuth2AuthorizedClientService authorizedClientService) {
 
     var provider = OAuth2AuthorizedClientProviderBuilder.builder().clientCredentials().build();
@@ -44,29 +38,6 @@ public class OAuth2ClientConfig {
         new AuthorizedClientServiceOAuth2AuthorizedClientManager(clients, authorizedClientService);
     manager.setAuthorizedClientProvider(provider);
     return manager;
-  }
-
-  @Bean
-  ClientRegistrationRepository clientRegistrationRepository() {
-    var grpcClient = securityClientProperties.getOauth2().getGrpcClient();
-
-    // Resolve token URI - use Eureka if enabled, otherwise use configured value
-    String tokenUri = securityClientProperties.getOauth2().getProvider().getTokenUri();
-    if (eurekaServiceDiscovery != null
-        && securityClientProperties.getEureka().isEnabled()) {
-      tokenUri = eurekaServiceDiscovery.resolveOAuth2TokenUri();
-    }
-
-    ClientRegistration registration =
-        ClientRegistration.withRegistrationId(CLIENT_REGISTRATION_ID)
-            .tokenUri(tokenUri)
-            .clientId(grpcClient.getClientId())
-            .clientSecret(grpcClient.getClientSecret())
-            .scope(grpcClient.getScopes())
-            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-            .build();
-
-    return new InMemoryClientRegistrationRepository(registration);
   }
 
   @Bean
