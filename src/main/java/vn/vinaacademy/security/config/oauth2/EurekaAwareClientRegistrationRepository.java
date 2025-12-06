@@ -1,6 +1,7 @@
 package vn.vinaacademy.security.config.oauth2;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -13,7 +14,9 @@ import vn.vinaacademy.security.properties.SecurityClientProperties;
 public class EurekaAwareClientRegistrationRepository implements ClientRegistrationRepository {
 
   private final SecurityClientProperties properties;
-  private final EurekaServiceDiscovery eurekaServiceDiscovery;
+
+  @Autowired(required = false)
+  private EurekaServiceDiscovery eurekaServiceDiscovery;
 
   @Override
   public ClientRegistration findByRegistrationId(String registrationId) {
